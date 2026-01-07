@@ -1,0 +1,1 @@
+The results inferenced by models should be saved in this directory.

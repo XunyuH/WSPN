@@ -1,0 +1,1 @@
+The checkpoints during training should be saved in this directory.
