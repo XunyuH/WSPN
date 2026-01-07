@@ -139,7 +139,9 @@ The `example.py` has implemented several functions to train and inference.
 
 ### Prepare Datasets
 The BioSR dataset: [BioSR](https://doi.org/10.6084/m9.figshare.13264793.v9)
+
 The BPAEC dataset: [BPAEC](https://doi.org/10.6084/m9.figshare.31017055)
+
 Please put the raw data of BioSR (4 directories) in your customized directory `raw_data_dir/` and use `src.utils.convert_mrc(raw_data_dir)` to get a prepared BioSR dataset.
 All dataset should be put in the directory `data/`.
 
