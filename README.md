@@ -152,5 +152,5 @@ For inferencing on the BioSR dataset, please use `example.inference_on_biosr(sav
 
 To get metrics computed in our paper, please use `example.get_metrics_on_biosr()`, `example.get_metrics_of_wspn_on_biosr_before_after_alignment()`, and `example.get_metrics_on_bpaec_before_after_finetuning()`.
 
-### License
+## License
 This repository is released under the MIT License.
