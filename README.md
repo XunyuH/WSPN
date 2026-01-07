@@ -139,7 +139,7 @@ The `example.py` has implemented several functions to train and inference.
 
 ### Prepare Datasets
 The BioSR dataset: [BioSR](https://doi.org/10.6084/m9.figshare.13264793.v9)
-The BPAEC dataset: [BPAEC](https://doi.org/10.5281/zenodo.18168163)
+The BPAEC dataset: [BPAEC](https://doi.org/10.6084/m9.figshare.31017055)
 Please put the raw data of BioSR (4 directories) in your customized directory `raw_data_dir/` and use `src.utils.convert_mrc(raw_data_dir)` to get a prepared BioSR dataset.
 All dataset should be put in the directory `data/`.
 
@@ -147,7 +147,7 @@ All dataset should be put in the directory `data/`.
 For training models on the BioSR dataset, please use `example.train_on_biosr()`. For fine-tuning (5-fold cross-validation) on the BPAEC dataset, please use `example.finetune_on_bpaec()`. The checkpoints during training should be saved in the directory `saved_state/`. The checkpoint with lowest NRMSE should be saved in the directory `pre_trained_state/`.
 
 ### Inference
-All pre-trained models in our paper: [Pre-trained models](https://doi.org/10.5281/zenodo.18168163).
+All pre-trained models in our paper: [Pre-trained models](https://doi.org/10.6084/m9.figshare.31017055).
 
 For inferencing on the BioSR dataset, please use `example.inference_on_biosr(save_results=True)`. For inferencing on the BPAEC dataset before fine-tuning, please use `example.inference_on_bpaec_before_finetuning(save_results=True)`. For inferencing on the BPAEC dataset after fine-tuning, please use `example.inference_on_bpaec_after_finetuning(save_results=True)`. All results should be saved in the directory `saved_img/`.
 
