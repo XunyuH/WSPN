@@ -138,7 +138,7 @@ Intel Core i9-14900KF CPU
 The `example.py` has implemented several functions to train and inference.
 
 ### Prepare Datasets
-The BioSR dataset: [BioSR](https://doi.org/10.6084/m9.figshare.13264793.v9)
+The BioSR dataset: [BioSR](https://doi.org/10.6084/m9.figshare.13264793)
 
 The BPAEC dataset: [BPAEC](https://doi.org/10.6084/m9.figshare.31017055)
 
