@@ -249,7 +249,7 @@ def train(model=DFCAN(),
                                                                       specimen_name=specimen_name,
                                                                       partition=partition)
             saved_state_name = (f'train_mse_{avg_train_mse:.6f}'
-                                f'train_ssim_{avg_train_ssim:.6f}'
+                                f'_train_ssim_{avg_train_ssim:.6f}'
                                 f'_val_NRMSE_{avg_val_nr_mse:.6f}'
                                 f'_val_MS_SSIM_{avg_val_ms_ssim:.6f}'
                                 f'_val_PSNR_{avg_val_psnr:.6f}'

@@ -1,7 +1,10 @@
-from src.model import srcnn, dfcan, rcan, wspn
+from src.model import srcnn, dfcan, rcan, wspn_elu, wspn_relu, wspn_gelu, rfdn
 import torch
 from pathlib import Path
 from datetime import datetime
+from contextlib import contextmanager
+import time
+import numpy as np
 
 
 def inference(mode='validate',
@@ -13,7 +16,8 @@ def inference(mode='validate',
               pretrained_name='example',
               save_results=False,
               dir_name='example',
-              partition=0):
+              partition=0,
+              wavelet='haar'):
 
     if model_name == 'SRCNN':
         model = srcnn.SRCNN()
@@ -21,8 +25,15 @@ def inference(mode='validate',
         model = dfcan.DFCAN()
     elif model_name == 'RCAN':
         model = rcan.RCAN()
-    else:
-        model = wspn.WSPN()
+    elif model_name == 'WSPN_ELU':
+        model = wspn_elu.WSPN(wavelet=wavelet)
+    elif model_name == 'WSPN_ReLU':
+        model = wspn_relu.WSPN(wavelet=wavelet)
+    elif model_name == 'WSPN_GELU':
+        model = wspn_gelu.WSPN(wavelet=wavelet)
+    elif model_name == 'RFDN':
+        model = rfdn.RFDN()
+
     pretrained_state = torch.load(str(list((Path.cwd() /
                                             'pre_trained_state' /
                                             model_name /
@@ -56,16 +67,40 @@ def inference(mode='validate',
                                              specimen_name=specimen_name,
                                              dir_name=dir_name,
                                              partition=partition)
-    else:
-        _, (nrmse, msssim, psnr) = wspn.inference(model=model.cuda(),
-                                                  mode=mode,
-                                                  save_results=save_results,
-                                                  dataset_name=dataset_name,
-                                                  specimen_name=specimen_name,
-                                                  dir_name=dir_name,
-                                                  partition=partition)
+    elif model_name == 'WSPN_ELU':
+        _, (nrmse, msssim, psnr) = wspn_elu.inference(model=model.cuda(),
+                                                      mode=mode,
+                                                      save_results=save_results,
+                                                      dataset_name=dataset_name,
+                                                      specimen_name=specimen_name,
+                                                      dir_name=dir_name,
+                                                      partition=partition)
+    elif model_name == 'WSPN_ReLU':
+        _, (nrmse, msssim, psnr) = wspn_relu.inference(model=model.cuda(),
+                                                       mode=mode,
+                                                       save_results=save_results,
+                                                       dataset_name=dataset_name,
+                                                       specimen_name=specimen_name,
+                                                       dir_name=dir_name,
+                                                       partition=partition)
+    elif model_name == 'WSPN_GELU':
+        _, (nrmse, msssim, psnr) = wspn_gelu.inference(model=model.cuda(),
+                                                       mode=mode,
+                                                       save_results=save_results,
+                                                       dataset_name=dataset_name,
+                                                       specimen_name=specimen_name,
+                                                       dir_name=dir_name,
+                                                       partition=partition)
+    elif model_name == 'RFDN':
+        nrmse, msssim, psnr = rfdn.inference(model=model.cuda(),
+                                             mode=mode,
+                                             save_results=save_results,
+                                             dataset_name=dataset_name,
+                                             specimen_name=specimen_name,
+                                             dir_name=dir_name,
+                                             partition=partition)
 
-    print(f'\n{model_name} {mode} {dataset_name} {specimen_name} Partition {partition}\n'
+    print(f'\n{model_name} {pretrained_specimen} {mode} {dataset_name} {specimen_name} Partition {partition}\n'
           f'NRMSE {nrmse:.4f} MS_SSIM {msssim:.4f} PSNR {psnr:.4f}\n')
 
 
@@ -77,7 +112,8 @@ def train(model_name='SRCNN',
           pretrained_name=None,
           dir_name=datetime.now().strftime('%Y%m%d-%H%M%S'),
           partition=0,
-          crop=0):
+          crop=0,
+          wavelet='haar'):
 
     if model_name == 'SRCNN':
         model = srcnn.SRCNN()
@@ -85,8 +121,15 @@ def train(model_name='SRCNN',
         model = dfcan.DFCAN()
     elif model_name == 'RCAN':
         model = rcan.RCAN()
-    else:
-        model = wspn.WSPN()
+    elif model_name == 'WSPN_ELU':
+        model = wspn_elu.WSPN(wavelet=wavelet)
+    elif model_name == 'WSPN_ReLU':
+        model = wspn_relu.WSPN(wavelet=wavelet)
+    elif model_name == 'WSPN_GELU':
+        model = wspn_gelu.WSPN(wavelet=wavelet)
+    elif model_name == 'RFDN':
+        model = rfdn.RFDN()
+
     if pretrained_dataset is not None:
         pretrained_state = torch.load(str(list((Path.cwd() /
                                                 'pre_trained_state' /
@@ -117,17 +160,37 @@ def train(model_name='SRCNN',
                    dir_name=dir_name,
                    partition=partition,
                    crop=crop)
-    else:
-        wspn.train(model=model,
+    elif model_name == 'WSPN_ELU':
+        wspn_elu.train(model=model,
+                       dataset_name=dataset_name,
+                       specimen_name=specimen_name,
+                       dir_name=dir_name,
+                       partition=partition,
+                       crop=crop)
+    elif model_name == 'WSPN_ReLU':
+        wspn_relu.train(model=model,
+                        dataset_name=dataset_name,
+                        specimen_name=specimen_name,
+                        dir_name=dir_name,
+                        partition=partition,
+                        crop=crop)
+    elif model_name == 'WSPN_GELU':
+        wspn_gelu.train(model=model,
+                        dataset_name=dataset_name,
+                        specimen_name=specimen_name,
+                        dir_name=dir_name,
+                        partition=partition,
+                        crop=crop)
+    elif model_name == 'RFDN':
+        rfdn.train(model=model,
                    dataset_name=dataset_name,
                    specimen_name=specimen_name,
                    dir_name=dir_name,
                    partition=partition,
                    crop=crop)
 
-
 def train_on_biosr():
-    models = ['SRCNN', 'RCAN', 'DFCAN', 'WSPN']
+    models = ['DFCAN', 'RCAN', 'RFDN', 'SRCNN', 'WSPN_ELU']
     specimens = ['CCPs', 'ER', 'Microtubules', 'F-actin']
     for model in models:
         for specimen in specimens:
@@ -139,7 +202,7 @@ def train_on_biosr():
 
 
 def inference_on_biosr(save_results=True):
-    models = ['SRCNN', 'RCAN', 'DFCAN', 'WSPN']
+    models = ['DFCAN', 'RCAN', 'RFDN', 'SRCNN', 'WSPN_ELU']
     specimens = ['CCPs', 'ER', 'Microtubules', 'F-actin']
     modes = ['validate', 'test']
     for model in models:
@@ -149,11 +212,12 @@ def inference_on_biosr(save_results=True):
                           model_name=model,
                           specimen_name=specimen,
                           pretrained_specimen=specimen,
+                          pretrained_name=f'{model}_{specimen}',
                           save_results=save_results)
 
 
 def inference_on_bpaec_before_finetuning(save_results=True):
-    models = ['SRCNN', 'RCAN', 'DFCAN', 'WSPN']
+    models = ['DFCAN', 'RCAN', 'RFDN', 'SRCNN', 'WSPN_ELU']
     specimens = ['CCPs', 'ER', 'Microtubules', 'F-actin']
     for model in models:
         for specimen in specimens:
@@ -162,13 +226,14 @@ def inference_on_bpaec_before_finetuning(save_results=True):
                           dataset_name='BPAEC',
                           specimen_name='F-actin',
                           pretrained_specimen=specimen,
+                          pretrained_name=f'{model}_{specimen}',
                           save_results=save_results,
                           dir_name=f'{specimen}_inference',
                           partition=i)
 
 
 def finetune_on_bpaec():
-    models = ['SRCNN', 'RCAN', 'DFCAN', 'WSPN']
+    models = ['DFCAN', 'RCAN', 'RFDN', 'SRCNN', 'WSPN_ELU']
     specimens = ['CCPs', 'ER', 'Microtubules', 'F-actin']
     for model in models:
         for specimen in specimens:
@@ -179,14 +244,14 @@ def finetune_on_bpaec():
                       specimen_name='F-actin',
                       pretrained_dataset='BioSR',
                       pretrained_specimen=specimen,
-                      pretrained_name='example',
+                      pretrained_name=f'{model}_{specimen}',
                       dir_name=dir_name,
                       partition=i,
                       crop=i)
 
 
 def inference_on_bpaec_after_finetuning(save_results=True):
-    models = ['SRCNN', 'RCAN', 'DFCAN', 'WSPN']
+    models = ['DFCAN', 'RCAN', 'RFDN', 'SRCNN', 'WSPN_ELU']
     specimens = ['CCPs', 'ER', 'Microtubules', 'F-actin']
     for model in models:
         for specimen in specimens:
@@ -205,88 +270,168 @@ def inference_on_bpaec_after_finetuning(save_results=True):
 def get_metrics_on_biosr():
     specimens = ['CCPs', 'ER', 'Microtubules', 'F-actin']
     modes = ['validate', 'test']
-    #models = ['HiFi-SIM', 'SRCNN', 'RCAN', 'DFCAN', 'WSPN']
-    models = ['SRCNN', 'RCAN', 'DFCAN', 'WSPN']
-    for specimen in specimens:
-        for mode in modes:
-            for model in models:
-                sum_nrmse = 0
-                sum_ms_ssim = 0
-                sum_psnr = 0
-                img_dir = (Path.cwd() /
-                           'saved_img' /
-                           model /
-                           'BioSR' /
-                           specimen /
-                           mode /
-                           'example')
-                if model == 'WSPN':
-                    img_dir = img_dir / 'after_alignment'
-                img_list = list(img_dir.glob('*.tiff'))
-                total = len(img_list)
-                for img in img_list:
-                    stem = img.stem.split('_')
-                    sum_nrmse += float(stem[5])
-                    sum_ms_ssim += float(stem[8])
-                    sum_psnr += float(stem[10])
-                print(f'BioSR {model} {specimen} {mode}')
-                print(f'NRMSE {sum_nrmse / total:.4f} MS-SSIM {sum_ms_ssim / total:.4f} PSNR {sum_psnr / total:.4f}')
+    models = ['HiFi-SIM', 'SRCNN', 'RFDN', 'RCAN', 'DFCAN', 'WSPN_ELU']
+    metrics = ['NRMSE', 'MS-SSIM', 'PSNR']
+    metric_locs = {'NRMSE': 5, 'MS-SSIM': 8, 'PSNR': 10}
+    metrics_dict = {'NRMSE': {}, 'MS-SSIM': {}, 'PSNR': {}}
+    for metric in metrics:
+        for model in models:
+            metrics_dict[metric][model] = []
+            for specimen in specimens:
+                for mode in modes:
+                    sum_metric = 0
+                    img_dir = (Path.cwd() /
+                               'saved_img' /
+                               f'{model}' /
+                               'BioSR' /
+                               specimen /
+                               mode /
+                               f'{model}_{specimen}')
+                    if model == 'WSPN_ELU':
+                        img_dir = img_dir / 'after_alignment'
+                    img_list = list(img_dir.glob('*.tiff'))
+                    total = len(img_list)
+                    for img in img_list:
+                        stem = img.stem.split('_')
+                        sum_metric += float(stem[metric_locs[metric]])
+
+                    metric_value = f'{sum_metric / total:.4f}'
+                    metrics_dict[metric][model].append(metric_value)
+
+            print(f'\n{model} {metric}\n')
+            print(' & '.join(metrics_dict[metric][model]))
 
 
 def get_metrics_of_wspn_on_biosr_before_after_alignment():
     specimens = ['CCPs', 'ER', 'Microtubules', 'F-actin']
     modes = ['validate', 'test']
     cases = ['before', 'after']
-    for specimen in specimens:
-        for mode in modes:
-            for case in cases:
-                sum_nrmse = 0
-                sum_ms_ssim = 0
-                sum_psnr = 0
-                img_dir = (Path.cwd() /
-                           'saved_img' /
-                           'WSPN' /
-                           'BioSR' /
-                           specimen /
-                           mode /
-                           'example' /
-                           f'{case}_alignment')
-                img_list = list(img_dir.glob('*.tiff'))
-                total = len(img_list)
-                for img in img_list:
-                    stem = img.stem.split('_')
-                    sum_nrmse += float(stem[5])
-                    sum_ms_ssim += float(stem[8])
-                    sum_psnr += float(stem[10])
-                print(f'BioSR {case} {specimen} {mode}')
-                print(f'NRMSE {sum_nrmse / total:.4f} MS-SSIM {sum_ms_ssim / total:.4f} PSNR {sum_psnr / total:.4f}')
+    metrics = ['NRMSE', 'MS-SSIM', 'PSNR']
+    metric_locs = {'NRMSE': 5, 'MS-SSIM': 8, 'PSNR': 10}
+    metrics_dict = {'NRMSE': {}, 'MS-SSIM': {}, 'PSNR': {}}
+    for metric in metrics:
+        for case in cases:
+            metrics_dict[metric][case] = []
+            for specimen in specimens:
+                for mode in modes:
+                    sum_metric = 0
+                    img_dir = (Path.cwd() /
+                               'saved_img' /
+                               'WSPN_ELU' /
+                               'BioSR' /
+                               specimen /
+                               mode /
+                               f'WSPN_ELU_{specimen}' /
+                               f'{case}_alignment')
+                    img_list = list(img_dir.glob('*.tiff'))
+                    total = len(img_list)
+                    for img in img_list:
+                        stem = img.stem.split('_')
+                        sum_metric += float(stem[metric_locs[metric]])
+
+                    metric_value = f'{sum_metric / total:.4f}'
+                    metrics_dict[metric][case].append(metric_value)
+
+            print(f'\n{case} {metric}\n')
+            print(' & '.join(metrics_dict[metric][case]))
 
 
 def get_metrics_on_bpaec_before_after_finetuning():
     specimens = ['CCPs', 'ER', 'Microtubules', 'F-actin']
-    models = ['SRCNN', 'RCAN', 'DFCAN', 'WSPN']
+    models = ['SRCNN', 'RFDN', 'RCAN', 'DFCAN', 'WSPN_ELU']
     cases = ['inference', 'finetune']
-    for specimen in specimens:
+    metrics = ['NRMSE', 'MS-SSIM', 'PSNR']
+    metric_locs = {'NRMSE': 3, 'MS-SSIM': 6, 'PSNR': 8}
+    metrics_dict = {'NRMSE': {}, 'MS-SSIM': {}, 'PSNR': {}}
+    for metric in metrics:
         for model in models:
-            for case in cases:
-                sum_nrmse = 0
-                sum_ms_ssim = 0
-                sum_psrn = 0
-                img_dir = (Path.cwd() /
-                           'saved_img' /
-                           model /
-                           'BPAEC' /
-                           'F-actin' /
-                           'validate' /
-                           f'{specimen}_{case}')
-                if model == 'WSPN':
-                    img_dir = img_dir / 'after_alignment'
-                img_list = list(img_dir.glob('*.tiff'))
-                total = len(img_list)
-                for img in img_list:
-                    stem = img.stem.split('_')
-                    sum_nrmse += float(stem[3])
-                    sum_ms_ssim += float(stem[6])
-                    sum_psrn += float(stem[8])
-                print(f'{model} {specimen}:')
-                print(f'NRMSE {sum_nrmse / total:.4f} MS-SSIM {sum_ms_ssim / total:.4f} PSRN {sum_psrn / total:.4f}')
+            metrics_dict[metric][model] = []
+            for specimen in specimens:
+                for case in cases:
+                    sum_metric = 0
+                    img_dir = (Path.cwd() /
+                               'saved_img' /
+                               model /
+                               'BPAEC' /
+                               'F-actin' /
+                               'validate' /
+                               f'{specimen}_{case}')
+                    if model == 'WSPN_ELU':
+                        img_dir = img_dir / 'after_alignment'
+                    img_list = list(img_dir.glob('*.tiff'))
+                    total = len(img_list)
+                    for img in img_list:
+                        stem = img.stem.split('_')
+                        sum_metric += float(stem[metric_locs[metric]])
+
+                    metric_value = f'{sum_metric / total:.4f}'
+                    metrics_dict[metric][model].append(metric_value)
+
+            print(f'\n{model} {specimen}\n')
+            print(' & '.join(metrics_dict[metric][model]))
+
+
+@contextmanager
+def timing_context(description="Operation"):
+    start_time = time.time()
+    try:
+        yield
+    finally:
+        end_time = time.time()
+        print(f"{description} 耗时: {end_time - start_time:.4f} 秒")
+
+
+def test_model_inference(model, input_tensor, num_runs=100, warmup=10):
+    model = model.to('cpu')
+    model.eval()
+
+    if input_tensor.is_cuda:
+        input_tensor = input_tensor.cpu()
+
+    with torch.no_grad():
+        for _ in range(warmup):
+            _ = model(input_tensor)
+
+    inference_times = []
+
+    with torch.no_grad():
+        for i in range(num_runs):
+
+            start_time = time.perf_counter()
+            output = model(input_tensor)
+            end_time = time.perf_counter()
+
+            inference_times.append((end_time - start_time) * 1000)  # 转换为毫秒
+
+    times_ms = np.array(inference_times)
+
+    print("\n" + "=" * 50)
+    print(f"mean_time: {np.mean(times_ms):.2f} ms")
+    print("=" * 50)
+
+    return {
+        'mean_time': np.mean(times_ms),
+    }
+
+
+def measure_memory_footprint(model):
+    param_size = 0
+    for param in model.parameters():
+        param_size += param.nelement() * param.element_size()
+    buffer_size = 0
+    for buffer in model.buffers():
+        buffer_size += buffer.nelement() * buffer.element_size()
+
+    param_size_mb = param_size / (1024 ** 2)
+    buffer_size_mb = buffer_size / (1024 ** 2)
+
+    print("\n" + "=" * 50)
+    print(f"'param_memory': {param_size_mb:.2f} MB")
+    print(f"buffer_memory: {buffer_size_mb:.2f} MB")
+    print(f"total_model_memory: {param_size_mb + buffer_size_mb:.2f} MB")
+
+    return {
+        'param_memory_mb': param_size_mb,
+        'buffer_memory_mb': buffer_size_mb,
+        'total_model_memory_mb': param_size_mb + buffer_size_mb,
+    }
