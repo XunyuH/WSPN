@@ -1,5 +1,5 @@
 # WSPN
-This is the PyTorch implementation of wavelet-spatial progressive network (WSPN). WSPN is a highly parameter-efficient deep learning-based super-resolution method. This repository includes implementations of other models (SRCNN, RCAN, DFCAN) compared in our paper ***Super-resolution optical microscopy via a wavelet-spatial progressive network with high parameter efficiency***. We also provide a public available dataset, BPAEC, for evaluating generalizability of deep learning-based methods across microscopy modalities.
+This is the PyTorch implementation of wavelet-spatial progressive network (WSPN). WSPN is a highly parameter-efficient deep learning-based super-resolution method. This repository includes implementations of other models (SRCNN, RFDN, RCAN, DFCAN) compared in our paper ***Super-resolution optical microscopy via a wavelet-spatial progressive network with high parameter efficiency***. We also provide a public available dataset, BPAEC, for evaluating generalizability of deep learning-based methods across microscopy modalities.
 
 ## Requirements
 ```
