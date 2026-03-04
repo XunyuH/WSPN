@@ -378,7 +378,7 @@ def timing_context(description="Operation"):
         yield
     finally:
         end_time = time.time()
-        print(f"{description} 耗时: {end_time - start_time:.4f} 秒")
+        print(f"{description} cost: {end_time - start_time:.4f} s")
 
 
 def test_model_inference(model, input_tensor, num_runs=100, warmup=10):
@@ -401,7 +401,7 @@ def test_model_inference(model, input_tensor, num_runs=100, warmup=10):
             output = model(input_tensor)
             end_time = time.perf_counter()
 
-            inference_times.append((end_time - start_time) * 1000)  # 转换为毫秒
+            inference_times.append((end_time - start_time) * 1000)
 
     times_ms = np.array(inference_times)
 
@@ -435,3 +435,4 @@ def measure_memory_footprint(model):
         'buffer_memory_mb': buffer_size_mb,
         'total_model_memory_mb': param_size_mb + buffer_size_mb,
     }
+
